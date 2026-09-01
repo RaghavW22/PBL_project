@@ -10,8 +10,9 @@ import {
   MessageSquare, 
   FileText, 
   ChevronRight,
-  Info,
-  Check
+  Search,
+  Check,
+  BookOpen
 } from 'lucide-react';
 
 interface CursorDoctorProps {
@@ -20,26 +21,51 @@ interface CursorDoctorProps {
 }
 
 interface ClinicalQA {
+  category: string;
   q: string;
   a: string;
 }
 
-const CLINICAL_FAQS: ClinicalQA[] = [
+export const CLINICAL_FAQS: ClinicalQA[] = [
   {
+    category: "Medical Reports",
     q: "What does my Complete Blood Count (CBC) mean?",
-    a: "CBC measures red cells (oxygen), white cells (immune defense), neutrophils (bacterial response), and platelets (clotting). ReportSarthi translates technical terms into clear 6th-grade English so you understand your results without panic."
+    a: "CBC measures red cells (oxygen delivery), white cells (immune defense), neutrophils (bacterial response), and platelets (clotting). ReportSarthi translates these technical values into clear 6th-grade English so you understand your report without anxiety."
   },
   {
-    q: "Why are my Neutrophils slightly elevated?",
-    a: "Neutrophils act like immune firefighters. A mild elevation (like 70-75%) is very common when your body is clearing a minor routine cold, mild inflammation, or seasonal stress."
+    category: "Medical Reports",
+    q: "Why are my Neutrophils or WBC count slightly elevated?",
+    a: "Neutrophils act like immune firefighters. A mild elevation (e.g. 70-75%) is very common when your body is recovering from a minor routine cold, mild exercise stress, or seasonal allergies."
   },
   {
-    q: "How does ReportSarthi generate my diet recommendations?",
-    a: "Our clinical engine maps low or high parameters (like low Ferritin or high Fasting Sugar) to tailored nutrition protocols—recommending iron-rich foods (spinach, lentils) or low-glycemic meal choices."
+    category: "Medical Reports",
+    q: "What should I do if my report shows a LOW or HIGH flag?",
+    a: "Low or high flags simply point out values slightly outside standard statistical averages. Review the AI Plain English explanation for context, and share the summary with your physician during your next consultation."
   },
   {
-    q: "Is my personal medical data private?",
-    a: "100% private! All personal identifiers (name, address, phone numbers) are masked on your device before text processing. Data is transmitted via 256-bit SSL encryption."
+    category: "Platform Features",
+    q: "How does ReportSarthi generate my personalized diet plan?",
+    a: "Our clinical engine inspects identified parameter variances (such as low Serum Ferritin or elevated Fasting Sugar) and maps them to evidence-based nutrition protocols—recommending iron-rich foods (spinach, lentils) or anti-inflammatory options."
+  },
+  {
+    category: "Platform Features",
+    q: "How does the 9-Language Regional Voice Reader work?",
+    a: "Once authenticated, select your native Indian language accent (Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada, Malayalam, English India) from the top navigation bar. Click Play Audio to listen to your medical summary in natural regional speech!"
+  },
+  {
+    category: "Privacy & Security",
+    q: "Is my medical report data confidential and secure?",
+    a: "Yes, 100%! Personal Identification Information (PII) such as patient full names, phone numbers, and addresses are automatically redacted on your browser before AI analysis. All sessions are protected with 256-bit SSL encryption."
+  },
+  {
+    category: "Platform Features",
+    q: "Is ReportSarthi a replacement for my doctor?",
+    a: "No. ReportSarthi is an educational tool designed to help you understand medical vocabulary and reference bounds before or after speaking with your doctor. It does not render clinical diagnosis or prescribe treatment plans."
+  },
+  {
+    category: "File Uploads",
+    q: "What file formats can I upload for analysis?",
+    a: "ReportSarthi supports PDF lab reports, high-resolution photos (JPG, PNG), and scanned pathology test documents for blood panels, metabolic tests, and routine lab checkups."
   }
 ];
 
@@ -61,8 +87,10 @@ export const CursorDoctor: React.FC<CursorDoctorProps> = ({
   // Speech text state
   const [speechText, setSpeechText] = useState("🩺 Hover your cursor over any metric or button to inspect instant clinical AI insights!");
 
-  // Q&A Drawer Modal state
+  // Q&A Drawer Modal & Filter state
   const [qaOpen, setQaOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All");
   const [selectedQa, setSelectedQa] = useState<ClinicalQA | null>(null);
 
   useEffect(() => {
@@ -133,6 +161,134 @@ export const CursorDoctor: React.FC<CursorDoctorProps> = ({
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  const categories = ["All", "Medical Reports", "Platform Features", "Privacy & Security", "File Uploads"];
+
+  const filteredFaqs = CLINICAL_FAQS.filter(item => {
+    const matchesCategory = activeCategory === "All" || item.category === activeCategory;
+    const matchesSearch = item.q.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          item.a.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesCategory && matchesSearch;
+  });
+
+  const renderModal = () => (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
+      <div className="liquid-glass-active rounded-3xl p-6 sm:p-8 w-full max-w-xl border border-cyan-500/40 shadow-2xl relative overflow-hidden backdrop-blur-2xl space-y-5 max-h-[90vh] flex flex-col">
+        
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-white/10 pb-4 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+              <Stethoscope className="w-5 h-5" />
+            </div>
+            <div>
+              <h3 className="text-lg font-bold text-white flex items-center gap-2">
+                <span>Dr. Sarthi — Medical FAQ & Assistant</span>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                  CLINICAL QA
+                </span>
+              </h3>
+              <p className="text-xs text-slate-400 font-mono">6TH-GRADE MEDICAL EXPLAINER & PLATFORM GUIDE</p>
+            </div>
+          </div>
+          <button 
+            onClick={() => { setQaOpen(false); setSelectedQa(null); setSearchQuery(""); }}
+            className="p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Content Body */}
+        {selectedQa ? (
+          <div className="space-y-4 animate-fadeIn overflow-y-auto pr-1">
+            <button 
+              onClick={() => setSelectedQa(null)}
+              className="text-xs text-cyan-400 font-mono hover:underline flex items-center gap-1"
+            >
+              ← Back to FAQ List
+            </button>
+            <div className="p-5 rounded-2xl bg-slate-900 border border-cyan-500/30 space-y-3">
+              <div className="inline-block text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                {selectedQa.category}
+              </div>
+              <h4 className="text-base font-bold text-white flex items-start gap-2">
+                <HelpCircle className="w-5 h-5 text-cyan-400 flex-shrink-0 mt-0.5" />
+                <span>{selectedQa.q}</span>
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed bg-slate-950/80 p-4 rounded-xl border border-white/10 font-sans">
+                {selectedQa.a}
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="space-y-4 overflow-y-auto pr-1 flex-1">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input 
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search clinical questions (e.g. CBC, neutrophils, diet, privacy)..."
+                className="w-full bg-slate-900 border border-white/15 rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 transition-colors"
+              />
+            </div>
+
+            {/* Category Pills */}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
+              {categories.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(cat)}
+                  className={`px-3 py-1 text-[11px] font-mono rounded-full whitespace-nowrap transition-all ${
+                    activeCategory === cat 
+                      ? 'bg-cyan-500 text-slate-950 font-bold shadow-md shadow-cyan-500/20' 
+                      : 'bg-slate-900 text-slate-400 border border-white/10 hover:text-slate-200'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Questions List */}
+            <div className="space-y-2 pt-1">
+              {filteredFaqs.length > 0 ? (
+                filteredFaqs.map((item, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setSelectedQa(item)}
+                    className="w-full text-left p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-cyan-500/40 text-xs font-medium text-slate-200 hover:text-white hover:bg-cyan-500/10 transition-all flex items-center justify-between group"
+                  >
+                    <span className="flex items-center gap-2.5 pr-2">
+                      <MessageSquare className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                      <span>{item.q}</span>
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-slate-500 group-hover:translate-x-1 transition-transform flex-shrink-0" />
+                  </button>
+                ))
+              ) : (
+                <div className="text-center py-8 text-xs text-slate-400 space-y-1">
+                  <p>No matching clinical FAQs found for "{searchQuery}".</p>
+                  <p className="text-[10px] text-slate-500">Try searching for keywords like "CBC", "diet", "neutrophil", or "privacy".</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Footer info */}
+        <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-400 flex-shrink-0">
+          <span className="flex items-center gap-1 text-emerald-400">
+            <Check className="w-3.5 h-3.5" /> 6TH GRADE ACCESSIBILITY
+          </span>
+          <span className="text-slate-500">HIPAA COMPLIANT</span>
+        </div>
+
+      </div>
+    </div>
+  );
+
   if (variant === 'floating') {
     return (
       <>
@@ -174,85 +330,15 @@ export const CursorDoctor: React.FC<CursorDoctorProps> = ({
                 <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               </span>
               <span className="text-[10px] text-cyan-300 font-mono flex items-center gap-1">
-                <Eye className="w-3 h-3 text-cyan-400" />
-                <span>Inspect Screen & Ask QA</span>
+                <BookOpen className="w-3 h-3 text-cyan-400" />
+                <span>Search Medical FAQ & Inspect</span>
               </span>
             </div>
           </div>
         </div>
 
-        {/* CLINICAL QA DRAWER MODAL */}
-        {qaOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-            <div className="liquid-glass-active rounded-3xl p-6 sm:p-8 w-full max-w-lg border border-cyan-500/40 shadow-2xl relative overflow-hidden backdrop-blur-2xl space-y-6">
-              
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                    <Stethoscope className="w-5 h-5" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-white">Dr. Sarthi — Clinical AI Assistant</h3>
-                    <p className="text-xs text-slate-400 font-mono">INSTANT MEDICAL REPORT EXPLAINER</p>
-                  </div>
-                </div>
-                <button 
-                  onClick={() => { setQaOpen(false); setSelectedQa(null); }}
-                  className="p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </div>
-
-              {selectedQa ? (
-                <div className="space-y-4 animate-fadeIn">
-                  <button 
-                    onClick={() => setSelectedQa(null)}
-                    className="text-xs text-cyan-400 font-mono hover:underline flex items-center gap-1"
-                  >
-                    ← Back to Questions
-                  </button>
-                  <div className="p-4 rounded-2xl bg-slate-900 border border-cyan-500/30 space-y-3">
-                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                      <HelpCircle className="w-4 h-4 text-cyan-400" />
-                      <span>{selectedQa.q}</span>
-                    </h4>
-                    <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/70 p-3 rounded-xl border border-white/5">
-                      {selectedQa.a}
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <p className="text-xs font-mono uppercase text-slate-400">SELECT A FREQUENT CLINICAL QUESTION:</p>
-                  <div className="space-y-2">
-                    {CLINICAL_FAQS.map((item, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setSelectedQa(item)}
-                        className="w-full text-left p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-cyan-500/40 text-xs font-medium text-slate-200 hover:text-white hover:bg-cyan-500/10 transition-all flex items-center justify-between group"
-                      >
-                        <span className="flex items-center gap-2">
-                          <MessageSquare className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-                          <span>{item.q}</span>
-                        </span>
-                        <ChevronRight className="w-4 h-4 text-slate-500 group-hover:translate-x-1 transition-transform" />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-400">
-                <span className="flex items-center gap-1 text-emerald-400">
-                  <Check className="w-3.5 h-3.5" /> 6TH GRADE PLAIN ENGLISH
-                </span>
-                <span className="text-slate-500">HIPAA COMPLIANT</span>
-              </div>
-
-            </div>
-          </div>
-        )}
+        {/* FAQ DRAWER MODAL */}
+        {qaOpen && renderModal()}
       </>
     );
   }
@@ -275,10 +361,13 @@ export const CursorDoctor: React.FC<CursorDoctorProps> = ({
           <Stethoscope className="w-4 h-4 text-cyan-400" />
           <span className="text-xs font-bold text-white tracking-wide">DR. SARTHI — AI CLINICAL INSPECTOR</span>
         </div>
-        <span className="text-[10px] font-mono px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold flex items-center gap-1">
-          <Eye className="w-3 h-3 text-cyan-400" />
-          <span>SCREEN GAZE INSPECTION ACTIVE</span>
-        </span>
+        <button
+          onClick={() => setQaOpen(true)}
+          className="text-[10px] font-mono px-2.5 py-1 rounded-full bg-cyan-500/20 text-cyan-300 hover:bg-cyan-500/30 border border-cyan-500/30 font-bold flex items-center gap-1 transition-colors"
+        >
+          <BookOpen className="w-3 h-3 text-cyan-400" />
+          <span>OPEN MEDICAL FAQ</span>
+        </button>
       </div>
 
       {/* Main Avatar + Speech Bubble Container */}
@@ -290,7 +379,7 @@ export const CursorDoctor: React.FC<CursorDoctorProps> = ({
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           className="relative w-32 h-32 flex-shrink-0 rounded-3xl bg-gradient-to-br from-slate-900 via-cyan-950/60 to-blue-950 border-2 border-cyan-500/40 shadow-xl flex items-center justify-center cursor-pointer group hover:border-cyan-400 transition-colors"
-          title="Click to ask Dr. Sarthi clinical questions"
+          title="Click to open Dr. Sarthi Medical FAQ & Assistant"
         >
           <svg viewBox="0 0 100 100" className="w-full h-full p-2">
             <path d="M 50 15 L 50 85 M 15 50 L 85 50" stroke="rgba(6, 182, 212, 0.1)" strokeWidth="1" />
@@ -317,7 +406,7 @@ export const CursorDoctor: React.FC<CursorDoctorProps> = ({
 
           {/* Interactive Tap Pill */}
           <span className="absolute -bottom-2 text-[9px] font-mono px-2 py-0.5 rounded-full bg-cyan-500 text-slate-950 font-extrabold shadow-md group-hover:scale-110 transition-transform">
-            ASK CLINICAL QA
+            SEARCH MEDICAL FAQ
           </span>
         </div>
 
@@ -343,86 +432,16 @@ export const CursorDoctor: React.FC<CursorDoctorProps> = ({
               onClick={() => setQaOpen(true)}
               className="text-cyan-400 hover:underline font-bold flex items-center gap-1"
             >
-              <HelpCircle className="w-3.5 h-3.5" />
-              <span>Open Medical Q&A Drawer →</span>
+              <BookOpen className="w-3.5 h-3.5" />
+              <span>Open Medical FAQ & Assistant →</span>
             </button>
           </div>
         </div>
 
       </div>
 
-      {/* CLINICAL QA DRAWER MODAL FOR CARD VARIANT */}
-      {qaOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fadeIn">
-          <div className="liquid-glass-active rounded-3xl p-6 sm:p-8 w-full max-w-lg border border-cyan-500/40 shadow-2xl relative overflow-hidden backdrop-blur-2xl space-y-6">
-            
-            <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-                  <Stethoscope className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-bold text-white">Dr. Sarthi — Clinical AI Assistant</h3>
-                  <p className="text-xs text-slate-400 font-mono">INSTANT MEDICAL REPORT EXPLAINER</p>
-                </div>
-              </div>
-              <button 
-                onClick={() => { setQaOpen(false); setSelectedQa(null); }}
-                className="p-2 rounded-full hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {selectedQa ? (
-              <div className="space-y-4 animate-fadeIn">
-                <button 
-                  onClick={() => setSelectedQa(null)}
-                  className="text-xs text-cyan-400 font-mono hover:underline flex items-center gap-1"
-                >
-                  ← Back to Questions
-                </button>
-                <div className="p-4 rounded-2xl bg-slate-900 border border-cyan-500/30 space-y-3">
-                  <h4 className="text-sm font-bold text-white flex items-center gap-2">
-                    <HelpCircle className="w-4 h-4 text-cyan-400" />
-                    <span>{selectedQa.q}</span>
-                  </h4>
-                  <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/70 p-3 rounded-xl border border-white/5">
-                    {selectedQa.a}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-xs font-mono uppercase text-slate-400">SELECT A FREQUENT CLINICAL QUESTION:</p>
-                <div className="space-y-2">
-                  {CLINICAL_FAQS.map((item, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedQa(item)}
-                      className="w-full text-left p-3.5 rounded-2xl bg-slate-900/80 border border-white/10 hover:border-cyan-500/40 text-xs font-medium text-slate-200 hover:text-white hover:bg-cyan-500/10 transition-all flex items-center justify-between group"
-                    >
-                      <span className="flex items-center gap-2">
-                        <MessageSquare className="w-4 h-4 text-cyan-400 flex-shrink-0" />
-                        <span>{item.q}</span>
-                      </span>
-                      <ChevronRight className="w-4 h-4 text-slate-500 group-hover:translate-x-1 transition-transform" />
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="pt-4 border-t border-white/10 flex items-center justify-between text-[11px] font-mono text-slate-400">
-              <span className="flex items-center gap-1 text-emerald-400">
-                <Check className="w-3.5 h-3.5" /> 6TH GRADE PLAIN ENGLISH
-              </span>
-              <span className="text-slate-500">HIPAA COMPLIANT</span>
-            </div>
-
-          </div>
-        </div>
-      )}
+      {/* FAQ DRAWER MODAL FOR CARD VARIANT */}
+      {qaOpen && renderModal()}
     </div>
   );
 };
