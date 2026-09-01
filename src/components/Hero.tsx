@@ -11,8 +11,6 @@ import {
   LogIn
 } from 'lucide-react';
 
-import { GazeScannerLens } from './GazeScannerLens';
-
 interface HeroProps {
   onExploreClick: () => void;
   onOpenAuth: (mode: 'login' | 'signup') => void;
@@ -108,9 +106,6 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick, onOpenAuth, isLogged
           {/* RIGHT COLUMN: Glassmorphic Preview Container */}
           <div className="lg:col-span-5 relative space-y-6">
             
-            {/* Interactive Real-Time AI Optical Gaze Scanner & PII Protector Widget */}
-            <GazeScannerLens />
-
             {/* Main Interactive Preview Card Mockup */}
             <div className="liquid-glass-active rounded-3xl p-6 border border-white/20 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
               

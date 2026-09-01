@@ -15,6 +15,7 @@ import {
 import { ReportUploader } from './ReportUploader';
 import { DigitalDashboard } from './DigitalDashboard';
 import { Footer } from './Footer';
+import { GazeMedicalReader } from './GazeMedicalReader';
 import { PatientProfile, LabParameter } from '../types';
 import { INDIAN_VOICE_LOCALES } from '../data/mockData';
 
@@ -198,6 +199,11 @@ export const PatientPortal: React.FC<PatientPortalProps> = ({
 
       {/* PORTAL FOOTER (DISCLAIMER ONLY) */}
       <Footer />
+
+      {/* Floating Gaze-to-Explain Medical Reader Lens */}
+      <div className="fixed bottom-6 right-6 z-40 hidden md:block">
+        <GazeMedicalReader />
+      </div>
 
     </div>
   );
