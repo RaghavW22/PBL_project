@@ -164,14 +164,34 @@ export const INITIAL_DIET_PLAN: DietPlan = {
 
 export const FAQ_ITEMS: FAQItem[] = [
   {
+    id: 'faq-sarthi-1',
+    question: 'Who is Dr. Sarthi AI Assistant and how does real-time cursor gaze tracking work?',
+    answer: 'Dr. Sarthi is your interactive AI Clinical Inspector companion. As you move your mouse cursor across any lab metric or report card on screen, Dr. Sarthi\'s gaze follows your cursor in real time and automatically provides live, 6th-grade English explanations about the exact lab value or section under your mouse!',
+  },
+  {
+    id: 'faq-sarthi-2',
+    question: 'How do I ask Dr. Sarthi specific medical or report questions?',
+    answer: 'Simply tap or click on Dr. Sarthi anywhere on screen (in the Hero card or the floating bottom-left mascot) to open the Dr. Sarthi Medical Q&A Assistant drawer. You can search or select instant answers covering blood counts, neutrophils, ferritin iron levels, diet guidance, and privacy.',
+  },
+  {
+    id: 'faq-sarthi-3',
+    question: 'How does ReportSarthi translate complex medical jargon into 6th-grade English?',
+    answer: 'Our clinical Named Entity Recognition (NER) pipeline extracts lab parameter names, observed values, and LOINC reference bounds. Our AI engine transforms medical terminology (such as "hypoferritinemia" or "reactive cellular atypia") into plain, reassuring everyday explanations.',
+  },
+  {
+    id: 'faq-sarthi-4',
+    question: 'How are personalized diet recommendations generated?',
+    answer: 'When lab metrics reveal low or high variances (such as low Serum Ferritin or high Fasting Sugar), ReportSarthi\'s nutrition engine maps your specific parameters to tailored dietary advice—recommending iron-dense foods (spinach, lentils) or anti-inflammatory options.',
+  },
+  {
     id: 'faq-1',
     question: 'Is ReportSarthi a replacement for my doctor?',
     answer: 'No. ReportSarthi is an educational tool designed to help you understand medical vocabulary and reference ranges before or after speaking with your doctor. It does not provide medical diagnoses or prescribe treatment plans. Always consult a qualified healthcare provider for clinical medical decisions.',
   },
   {
     id: 'faq-2',
-    question: 'How does Indian Language Voice Assistant work?',
-    answer: 'Select your preferred Indian language (Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada, Malayalam, English India) from the top navbar selector, and the Voice Summary Reader will synthesize audio speech in that regional accent!',
+    question: 'How does the 9-Language Indian Voice Reader work?',
+    answer: 'Once logged in, select your preferred Indian language accent (Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada, Malayalam, English India) from the top navbar, and the Voice Summary Reader will synthesize audio speech in that natural regional accent!',
   },
   {
     id: 'faq-3',
