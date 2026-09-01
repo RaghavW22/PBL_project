@@ -1,62 +1,77 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Eye, BookOpen, Volume2, Sparkles, HelpCircle, X, Check, Activity, Search, ShieldCheck } from 'lucide-react';
+import { 
+  Eye, 
+  HelpCircle, 
+  Search, 
+  Volume2, 
+  Sparkles, 
+  X, 
+  ChevronRight, 
+  ShieldCheck, 
+  ArrowUpRight,
+  MessageSquare,
+  Check,
+  FileUp,
+  Globe,
+  Lock,
+  LogIn
+} from 'lucide-react';
 
 interface GazeMedicalReaderProps {
   className?: string;
 }
 
-interface TermDefinition {
-  term: string;
-  category: string;
-  range: string;
-  plainEnglish: string;
-  advice: string;
+interface QuerySolution {
+  id: string;
+  category: 'Website Help' | 'Report & Terms' | 'Privacy & Security';
+  q: string;
+  solution: string;
+  actionText?: string;
+  actionTarget?: string;
 }
 
-const MEDICAL_DICTIONARY: Record<string, TermDefinition> = {
-  neutrophil: {
-    term: "Neutrophils (Absolute)",
-    category: "Immune System / WBC",
-    range: "40% - 65%",
-    plainEnglish: "White blood cells that act like first-responder firefighters against routine bacterial infections.",
-    advice: "Mild 72% elevation indicates your immune system is actively recovering from minor inflammation or cold."
+const QUERY_DATABASE: QuerySolution[] = [
+  {
+    id: 'upload-help',
+    category: 'Website Help',
+    q: 'How do I upload my lab report PDF or image?',
+    solution: 'Login to unlock tools, then scroll to the Report Uploader section. Drag & drop your PDF, PNG, or JPG lab report. Our OCR engine automatically extracts parameters while masking personal identity data.',
+    actionText: 'Scroll to Report Uploader',
+    actionTarget: '#uploader-section'
   },
-  ferritin: {
-    term: "Serum Ferritin",
-    category: "Iron Reserves & Blood",
-    range: "20 - 250 ng/mL",
-    plainEnglish: "A blood protein that stores iron inside your body cells so your tissue has steady energy.",
-    advice: "Low-normal (22 ng/mL) reserves can cause mild tiredness. Eating iron-rich spinach, lentils, and beans helps!"
+  {
+    id: 'voice-help',
+    category: 'Website Help',
+    q: 'How do I listen to my report in Indian regional languages?',
+    solution: 'After logging in, use the Language Selector in the top navigation bar to choose from 9 Indian regional speech accents (Hindi, Tamil, Telugu, Bengali, Marathi, Gujarati, Kannada, Malayalam, English India). Click Play Audio on your report summary!',
+    actionText: 'Select Voice Language',
+    actionTarget: '#overview'
   },
-  glucose: {
-    term: "Fasting Blood Glucose",
-    category: "Metabolic & Sugar",
-    range: "70 - 99 mg/dL",
-    plainEnglish: "The amount of sugar circulating in your bloodstream after an overnight fast.",
-    advice: "92 mg/dL is optimal, demonstrating healthy insulin sensitivity and balanced blood sugar."
+  {
+    id: 'privacy-help',
+    category: 'Privacy & Security',
+    q: 'Is my personal medical data kept private and secure?',
+    solution: '100% private! All patient full names, SSNs, phone numbers, and addresses are automatically redacted on your device before AI analysis. All connections are encrypted via 256-bit SSL.',
   },
-  platelet: {
-    term: "Platelet Count (PLT)",
-    category: "Blood Coagulation",
-    range: "150 - 450 x10^3/uL",
-    plainEnglish: "Tiny blood cell fragments that help your blood clot to heal scratches and wounds.",
-    advice: "240 x10^3/uL is within the ideal safe reference range."
+  {
+    id: 'auth-help',
+    category: 'Website Help',
+    q: 'Why is login required to access the dashboard & tools?',
+    solution: 'Firebase authentication ensures your medical reports and personalized health records remain strictly confidential and accessible only to you.',
   },
-  wbc: {
-    term: "White Blood Cells (WBC)",
-    category: "Immune Defense",
-    range: "4.5 - 11.0 x10^3/uL",
-    plainEnglish: "Your body's primary defense squad protecting you from viruses, bacteria, and illness.",
-    advice: "8.2 x10^3/uL indicates a balanced, active immune system."
+  {
+    id: 'cbc-term',
+    category: 'Report & Terms',
+    q: 'What is Complete Blood Count (CBC) & LOINC Risk Score?',
+    solution: 'CBC measures red cells, white cells, neutrophils, and platelets. Our LOINC Risk Score weights observed values against international clinical reference standards to generate a 0-100 health index.',
   },
-  risk: {
-    term: "Health Risk Index",
-    category: "Clinical Assessment",
-    range: "0 - 100 Index",
-    plainEnglish: "A overall wellness score weighting lab variances against LOINC international medical standards.",
-    advice: "Score of 88/100 reflects strong overall health with minor iron monitoring recommended."
+  {
+    id: 'neutrophil-term',
+    category: 'Report & Terms',
+    q: 'What does a slightly elevated Neutrophil count mean?',
+    solution: 'Neutrophils are immune firefighters. A mild elevation (like 70-75%) is very common when your body is clearing routine inflammation, seasonal allergies, or a minor cold.',
   }
-};
+];
 
 export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className = '' }) => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -65,9 +80,8 @@ export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className 
   const [leftPupil, setLeftPupil] = useState({ x: 0, y: 0 });
   const [rightPupil, setRightPupil] = useState({ x: 0, y: 0 });
   
-  const [coords, setCoords] = useState({ x: 0, y: 0 });
-  const [activeTermKey, setActiveTermKey] = useState<string>("neutrophil");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedSolution, setSelectedSolution] = useState<QuerySolution>(QUERY_DATABASE[0]);
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
 
@@ -93,33 +107,16 @@ export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className 
 
       setLeftPupil({ x: pupilX, y: pupilY });
       setRightPupil({ x: pupilX, y: pupilY });
-      setCoords({ x: Math.round(e.clientX), y: Math.round(e.clientY) });
-
-      // AUTOMATIC HOVER MEDICAL TERM GAZE DETECTION
-      const elem = document.elementFromPoint(e.clientX, e.clientY);
-      if (elem) {
-        const text = (elem.textContent || '').toLowerCase();
-        if (text.includes('ferritin') || text.includes('iron')) {
-          setActiveTermKey('ferritin');
-        } else if (text.includes('glucose') || text.includes('sugar')) {
-          setActiveTermKey('glucose');
-        } else if (text.includes('platelet') || text.includes('plt')) {
-          setActiveTermKey('platelet');
-        } else if (text.includes('wbc') || text.includes('white blood')) {
-          setActiveTermKey('wbc');
-        } else if (text.includes('risk') || text.includes('score')) {
-          setActiveTermKey('risk');
-        } else if (text.includes('neutrophil')) {
-          setActiveTermKey('neutrophil');
-        }
-      }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const activeDef = MEDICAL_DICTIONARY[activeTermKey] || MEDICAL_DICTIONARY['neutrophil'];
+  const filteredQueries = QUERY_DATABASE.filter(item => 
+    item.q.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.solution.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSpeak = () => {
     if (!('speechSynthesis' in window)) return;
@@ -130,7 +127,7 @@ export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className 
       return;
     }
 
-    const textToSay = `${activeDef.term}. ${activeDef.plainEnglish} ${activeDef.advice}`;
+    const textToSay = `${selectedSolution.q}. ${selectedSolution.solution}`;
     const utterance = new SpeechSynthesisUtterance(textToSay);
     utterance.rate = 0.95;
     
@@ -141,6 +138,14 @@ export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className 
     window.speechSynthesis.speak(utterance);
   };
 
+  const handleActionClick = (targetSelector?: string) => {
+    if (!targetSelector) return;
+    const elem = document.querySelector(targetSelector);
+    if (elem) {
+      elem.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   if (isMinimized) {
     return (
       <button
@@ -148,7 +153,7 @@ export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className 
         className="fixed bottom-6 right-6 z-40 bg-slate-900 border border-cyan-500/40 rounded-full px-4 py-2.5 text-xs font-mono text-cyan-300 shadow-2xl backdrop-blur-xl flex items-center gap-2 hover:bg-slate-800 transition-all animate-fadeIn"
       >
         <Eye className="w-4 h-4 text-cyan-400 animate-pulse" />
-        <span className="font-bold">Open Medical Gaze Explainer</span>
+        <span className="font-bold">Open Website Query Solver</span>
       </button>
     );
   }
@@ -158,18 +163,18 @@ export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className 
       ref={containerRef}
       className={`liquid-glass-active rounded-3xl p-5 border border-cyan-500/40 shadow-2xl relative overflow-hidden backdrop-blur-2xl transition-all space-y-4 max-w-md w-full ${className}`}
     >
-      {/* Radial Accent Glow */}
+      {/* Background Radial Glow */}
       <div className="absolute top-0 right-0 w-36 h-36 bg-cyan-500/10 rounded-full blur-2xl pointer-events-none" />
 
-      {/* Top Bar Header */}
+      {/* Header Bar */}
       <div className="flex items-center justify-between pb-3 border-b border-white/10">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
-            <BookOpen className="w-4 h-4" />
+            <HelpCircle className="w-4.5 h-4.5" />
           </div>
           <div>
-            <h4 className="text-xs font-bold text-white tracking-wide uppercase font-mono">GAZE MEDICAL EXPLAINER LENS</h4>
-            <p className="text-[10px] text-cyan-300 font-mono">HOVER CURSOR OVER ANY TERM TO EXPLAIN</p>
+            <h4 className="text-xs font-bold text-white tracking-wide uppercase font-mono">GAZE WEBSITE QUERY SOLVER</h4>
+            <p className="text-[10px] text-cyan-300 font-mono">INSTANT AI HELP & NAVIGATION ASSISTANT</p>
           </div>
         </div>
         
@@ -181,14 +186,14 @@ export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className 
           <button 
             onClick={() => setIsMinimized(true)}
             className="p-1 rounded-lg hover:bg-white/10 text-slate-400 hover:text-white transition-colors text-xs"
-            title="Minimize Lens"
+            title="Minimize"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      {/* Main Reticle + Active Definition Display */}
+      {/* Main Reticle + Active Query Solution Box */}
       <div className="flex items-start gap-4">
         
         {/* Real-time Tracking Optical Reticle SVG */}
@@ -211,49 +216,68 @@ export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className 
           </svg>
 
           <span className="absolute -bottom-1.5 text-[8px] font-mono px-1.5 py-0.5 rounded-full bg-cyan-500 text-slate-950 font-bold uppercase">
-            GAZE LENS
+            GAZE SOLVER
           </span>
         </div>
 
-        {/* Dynamic Medical Explanation Box */}
+        {/* Selected Query Solution Details */}
         <div className="space-y-2 flex-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-extrabold text-white flex items-center gap-1.5">
-              <span>{activeDef.term}</span>
-              <span className="text-[10px] font-mono text-cyan-300 font-normal">({activeDef.range})</span>
-            </span>
-            <span className="text-[9px] font-mono px-2 py-0.5 rounded-md bg-slate-900 text-cyan-300 border border-white/10">
-              {activeDef.category}
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-900 text-cyan-300 border border-white/10">
+              {selectedSolution.category}
             </span>
           </div>
 
           <div className="p-3 rounded-xl bg-slate-950/90 border border-cyan-500/30 space-y-2 text-xs leading-relaxed">
-            <p className="text-slate-200 font-sans font-medium">
-              💡 <strong>6th-Grade Meaning:</strong> {activeDef.plainEnglish}
+            <p className="text-white font-bold font-sans">
+              ❓ {selectedSolution.q}
             </p>
-            <p className="text-cyan-300 font-sans text-[11px] pt-1.5 border-t border-white/10">
-              🩺 <strong>Clinical Advice:</strong> {activeDef.advice}
+            <p className="text-slate-300 font-sans text-[11px] pt-1.5 border-t border-white/10">
+              💡 {selectedSolution.solution}
             </p>
+            
+            {selectedSolution.actionText && (
+              <button
+                onClick={() => handleActionClick(selectedSolution.actionTarget)}
+                className="mt-1 text-[10px] font-mono text-cyan-300 hover:text-white hover:underline font-bold flex items-center gap-1"
+              >
+                <span>{selectedSolution.actionText}</span>
+                <ArrowUpRight className="w-3 h-3 text-cyan-400" />
+              </button>
+            )}
           </div>
         </div>
 
       </div>
 
-      {/* Quick Select Pill Buttons */}
-      <div className="space-y-1.5 pt-1">
-        <p className="text-[10px] font-mono text-slate-400 uppercase">QUICK INSPECT MEDICAL TERMS:</p>
-        <div className="flex flex-wrap gap-1.5">
-          {Object.entries(MEDICAL_DICTIONARY).map(([key, def]) => (
+      {/* Search Query Input */}
+      <div className="relative">
+        <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+        <input 
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Ask any query (e.g. upload, voice, privacy, CBC)..."
+          className="w-full bg-slate-900 border border-white/15 rounded-xl pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-400 font-sans transition-colors"
+        />
+      </div>
+
+      {/* Quick Select Query List */}
+      <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+        <p className="text-[10px] font-mono text-slate-400 uppercase">SELECT A FREQUENT QUERY:</p>
+        <div className="space-y-1">
+          {filteredQueries.map((item) => (
             <button
-              key={key}
-              onClick={() => setActiveTermKey(key)}
-              className={`px-2.5 py-1 text-[10px] font-mono rounded-lg transition-all ${
-                activeTermKey === key
-                  ? 'bg-cyan-500 text-slate-950 font-bold shadow-md'
-                  : 'bg-slate-900 text-slate-300 border border-white/10 hover:text-white'
+              key={item.id}
+              onClick={() => setSelectedSolution(item)}
+              className={`w-full text-left p-2 rounded-xl text-[11px] font-medium transition-all flex items-center justify-between group ${
+                selectedSolution.id === item.id 
+                  ? 'bg-cyan-500/20 text-white border border-cyan-500/40 font-bold' 
+                  : 'bg-slate-900/60 text-slate-300 hover:text-white border border-white/5 hover:border-cyan-500/30'
               }`}
             >
-              {def.term.split(' ')[0]}
+              <span className="truncate pr-2">{item.q}</span>
+              <ChevronRight className="w-3.5 h-3.5 text-slate-500 group-hover:translate-x-0.5 transition-transform flex-shrink-0" />
             </button>
           ))}
         </div>
@@ -263,7 +287,7 @@ export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className 
       <div className="pt-2 border-t border-white/10 flex items-center justify-between text-xs font-mono">
         <span className="text-[10px] text-slate-400 flex items-center gap-1">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-          <span>6th-Grade Plain English</span>
+          <span>Real-Time Solution Engine</span>
         </span>
 
         <button
@@ -275,7 +299,7 @@ export const GazeMedicalReader: React.FC<GazeMedicalReaderProps> = ({ className 
           }`}
         >
           <Volume2 className="w-3.5 h-3.5" />
-          <span>{isSpeaking ? "Stop Speech" : "Listen Audio"}</span>
+          <span>{isSpeaking ? "Stop Voice" : "Listen Solution"}</span>
         </button>
       </div>
 
