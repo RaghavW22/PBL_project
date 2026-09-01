@@ -8,7 +8,6 @@ import { FAQSection } from './components/FAQSection';
 import { AuthModal } from './components/AuthModal';
 import { Footer } from './components/Footer';
 import { PatientPortal } from './components/PatientPortal';
-import { CursorDoctor } from './components/CursorDoctor';
 
 import { AuthProvider, useAuth } from './context/AuthContext';
 
@@ -209,9 +208,6 @@ function AppContent() {
 
       {/* Modern Footer */}
       <Footer />
-
-      {/* Floating Interactive Cursor-Tracking AI Doctor Mascot */}
-      <CursorDoctor variant="floating" />
 
       {/* Authentication Modal */}
       <AuthModal 
