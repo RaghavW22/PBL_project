@@ -11,6 +11,8 @@ import {
   LogIn
 } from 'lucide-react';
 
+import { CursorDoctor } from './CursorDoctor';
+
 interface HeroProps {
   onExploreClick: () => void;
   onOpenAuth: (mode: 'login' | 'signup') => void;
@@ -104,31 +106,10 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick, onOpenAuth, isLogged
           </div>
 
           {/* RIGHT COLUMN: Glassmorphic Preview Container */}
-          <div className="lg:col-span-5 relative">
+          <div className="lg:col-span-5 relative space-y-6">
             
-            {/* Background Glow Ring */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-3xl blur-xl opacity-30 animate-pulse-slow"></div>
-
-            {/* Floating Micro-Metrics Chips */}
-            <div className="absolute -top-6 -left-6 z-20 liquid-glass rounded-2xl p-3 border border-cyan-500/40 shadow-2xl flex items-center gap-3 backdrop-blur-xl animate-float">
-              <div className="w-8 h-8 rounded-xl bg-teal-500/20 flex items-center justify-center text-teal-300">
-                <Zap className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-[10px] text-slate-400 font-mono">LATENCY PERFORMANCE</p>
-                <p className="text-xs font-bold text-white">&lt; 50ms OCR Inference</p>
-              </div>
-            </div>
-
-            <div className="absolute -bottom-6 -right-4 z-20 liquid-glass rounded-2xl p-3 border border-blue-500/40 shadow-2xl flex items-center gap-3 backdrop-blur-xl animate-float" style={{ animationDelay: '2s' }}>
-              <div className="w-8 h-8 rounded-xl bg-cyan-500/20 flex items-center justify-center text-cyan-300">
-                <ShieldCheck className="w-4 h-4" />
-              </div>
-              <div>
-                <p className="text-[10px] text-slate-400 font-mono">MODEL ACCURACY</p>
-                <p className="text-xs font-bold text-white">98.4% NER Extraction</p>
-              </div>
-            </div>
+            {/* Interactive Real-Time Cursor Tracking Doctor Widget */}
+            <CursorDoctor variant="card" />
 
             {/* Main Interactive Preview Card Mockup */}
             <div className="liquid-glass-active rounded-3xl p-6 border border-white/20 shadow-2xl relative overflow-hidden backdrop-blur-2xl">
