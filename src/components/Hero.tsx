@@ -15,11 +15,12 @@ interface HeroProps {
   onExploreClick: () => void;
   onOpenAuth: (mode: 'login' | 'signup') => void;
   isLoggedIn: boolean;
+  onNavigate?: (sectionId: string) => void;
 }
 
-export const Hero: React.FC<HeroProps> = ({ onExploreClick, onOpenAuth, isLoggedIn }) => {
+export const Hero: React.FC<HeroProps> = ({ onExploreClick, onOpenAuth, isLoggedIn, onNavigate }) => {
   return (
-    <section id="overview" className="relative pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden">
+    <section id="overview" className="relative pt-36 pb-20 md:pt-44 md:pb-28 overflow-hidden scroll-mt-32">
       {/* Glowing Radial Background Accents */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-cyan-500/10 rounded-full blur-[140px] pointer-events-none" />
       <div className="absolute top-10 right-10 w-[400px] h-[400px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
@@ -79,6 +80,12 @@ export const Hero: React.FC<HeroProps> = ({ onExploreClick, onOpenAuth, isLogged
 
               <a
                 href="#bento"
+                onClick={(e) => {
+                  if (onNavigate) {
+                    e.preventDefault();
+                    onNavigate('bento');
+                  }
+                }}
                 className="w-full sm:w-auto flex items-center justify-center gap-2 px-7 py-4 rounded-2xl liquid-glass text-white font-medium text-base hover:border-white/30 hover:bg-white/10 transition-all border border-white/15"
               >
                 <span>Features & Architecture</span>

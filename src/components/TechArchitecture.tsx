@@ -20,7 +20,7 @@ export const TechArchitecture: React.FC = () => {
     'Canvas API': 'input',
     'Web Workers': 'input',
     'EasyOCR / Tesseract': 'processing',
-    'PyTorch LLM': 'processing',
+    'MedGemma 1.5 Flash': 'processing',
     'Spacy Medical': 'processing',
     'Python 3.11': 'backend',
     'FastAPI': 'backend',
@@ -39,7 +39,7 @@ export const TechArchitecture: React.FC = () => {
   const activeCategory = getActiveCategory();
 
   return (
-    <section id="architecture" className="py-20 relative bg-slate-950/60 border-y border-white/10 scroll-mt-28">
+    <section id="architecture" className="py-20 relative bg-slate-950/60 border-y border-white/10 scroll-mt-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
@@ -108,7 +108,7 @@ export const TechArchitecture: React.FC = () => {
               Text extraction, table parsing, and clinical named-entity recognition.
             </p>
             <div className="flex flex-wrap gap-1.5 pt-2 border-t border-white/10">
-              {['EasyOCR / Tesseract', 'PyTorch LLM', 'Spacy Medical'].map(tech => (
+              {['EasyOCR / Tesseract', 'MedGemma 1.5 Flash', 'Spacy Medical'].map(tech => (
                 <span 
                   key={tech}
                   onMouseEnter={() => setHoveredTech(tech)}

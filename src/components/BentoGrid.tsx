@@ -19,7 +19,7 @@ export const BentoGrid: React.FC = () => {
   const [simulatedTelemetry, setSimulatedTelemetry] = useState(true);
 
   return (
-    <section id="bento" className="py-20 relative scroll-mt-28">
+    <section id="bento" className="py-20 relative scroll-mt-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

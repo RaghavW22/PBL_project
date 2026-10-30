@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock, Eye, EyeOff, Shield, AlertCircle, Loader2 } from 'lucide-react';
+import { X, Mail, Lock, Eye, EyeOff, Shield, AlertCircle, Loader2, Sparkles } from 'lucide-react';
 import { useAuth, getFirebaseErrorMessage } from '../context/AuthContext';
 
 interface AuthModalProps {
@@ -240,6 +240,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             ) : (
               <span>{activeTab === 'login' ? 'Sign In & Unlock Dashboard' : 'Create Free Account & Unlock'}</span>
             )}
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              onSuccessLogin('demo.patient@reportsarthi.local');
+              onClose();
+              onShowToast('Entered Demo Workspace as Guest Patient.', 'info');
+            }}
+            className="w-full py-2.5 rounded-xl bg-slate-900/90 border border-cyan-500/30 font-semibold text-cyan-300 hover:bg-cyan-500/15 text-xs font-mono transition-all flex items-center justify-center gap-2 mt-2"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
+            <span>Instant Demo Access (Skip Login)</span>
           </button>
         </form>
 

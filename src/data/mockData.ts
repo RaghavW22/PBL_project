@@ -70,96 +70,24 @@ export const MULTILINGUAL_TRANSLATIONS: Record<string, MultilingualTranslation> 
 };
 
 export const INITIAL_PATIENT: PatientProfile = {
-  name: 'DOE, JANE M.',
-  age: 38,
-  gender: 'FEMALE',
-  sampleDate: '18-AUG-2026',
-  riskScore: 88,
+  name: '',
+  age: 0,
+  gender: '',
+  sampleDate: '',
+  riskScore: 0,
   riskLevel: 'LOW RISK',
-  riskTitle: 'Optimal Health Profile',
-  riskDescription: '92% of evaluated markers are within normal range. Mild elevation detected in Neutrophils, requiring standard wellness monitoring.',
-  normalCount: 4,
-  varianceCount: 1,
+  riskTitle: '',
+  riskDescription: '',
+  normalCount: 0,
+  varianceCount: 0,
 };
 
-export const INITIAL_LAB_PARAMETERS: LabParameter[] = [
-  {
-    id: '1',
-    name: 'Hemoglobin (Hb)',
-    category: 'Complete Blood Count',
-    subText: 'Oxygen-carrying protein in red blood cells',
-    observedValue: '13.8 g/dL',
-    standardRange: '12.0 - 15.5 g/dL',
-    status: 'NORMAL',
-    explanation: 'Excellent! Your red blood cells have plenty of oxygen-carrying capacity.',
-  },
-  {
-    id: '2',
-    name: 'White Blood Cells (WBC)',
-    category: 'Complete Blood Count',
-    subText: 'Total immune system defense cell count',
-    observedValue: '8.2 x10^3/uL',
-    standardRange: '4.5 - 11.0 x10^3/uL',
-    status: 'NORMAL',
-    explanation: 'Normal range. Your body\'s primary immune defense force is standing by.',
-  },
-  {
-    id: '3',
-    name: 'Neutrophils (Absolute)',
-    category: 'Complete Blood Count',
-    subText: 'First-responder white blood cells for bacterial defense',
-    observedValue: '72 %',
-    standardRange: '40 - 65 %',
-    status: 'HIGH',
-    explanation: 'Slightly high. Neutrophils act like immune firefighters clearing minor inflammation or routine recovery.',
-  },
-  {
-    id: '4',
-    name: 'Platelets (PLT)',
-    category: 'Complete Blood Count',
-    subText: 'Blood clotting cell fragments',
-    observedValue: '285 x10^3/uL',
-    standardRange: '150 - 450 x10^3/uL',
-    status: 'NORMAL',
-    explanation: 'Perfect clotting balance without blood thickness issues.',
-  },
-  {
-    id: '5',
-    name: 'Serum Ferritin',
-    category: 'Iron Stores Panel',
-    subText: 'Cellular iron storage protein level',
-    observedValue: '22 ng/mL',
-    standardRange: '13 - 150 ng/mL',
-    status: 'LOW',
-    explanation: 'Low-normal iron reserves. Boosting iron-rich foods will prevent sluggish energy levels.',
-  },
-  {
-    id: '6',
-    name: 'Fasting Plasma Glucose',
-    category: 'Metabolic Panel',
-    subText: 'Blood sugar level after overnight fast',
-    observedValue: '92 mg/dL',
-    standardRange: '70 - 99 mg/dL',
-    status: 'NORMAL',
-    explanation: 'Optimal fasting blood sugar with normal insulin responsiveness.',
-  }
-];
+export const INITIAL_LAB_PARAMETERS: LabParameter[] = [];
 
 export const INITIAL_DIET_PLAN: DietPlan = {
-  include: [
-    { title: 'Iron & Vitamin C', desc: 'Spinach, lentils (dal), bell peppers, and citrus fruits to boost ferritin storage.' },
-    { title: 'Anti-Inflammatory', desc: 'Walnuts, chia seeds, turmeric (curcumin), and green tea to support immune recovery.' },
-    { title: 'Hydration', desc: '2.5 - 3 Liters of water daily to maintain plasma fluid balance.' }
-  ],
-  avoid: [
-    { title: 'Ultra-processed sugars', desc: 'Sweetened drinks, packaged sweets, and refined flour (maida) that trigger inflammation.' },
-    { title: 'Excess Sodium', desc: 'Salty fried snacks to prevent fluid retention and blood pressure spikes.' },
-    { title: 'Alcohol & Tobacco', desc: 'Avoid to preserve liver enzyme equilibrium.' }
-  ],
-  tips: [
-    { title: 'Post-Meal Walking', desc: '15-minute gentle walk after dinner to improve insulin sensitivity.' },
-    { title: 'Sleep Hygiene', desc: '7-8 hours of sound sleep to lower neutrophil inflammation markers.' }
-  ]
+  include: [],
+  avoid: [],
+  tips: []
 };
 
 export const FAQ_ITEMS: FAQItem[] = [
@@ -198,7 +126,7 @@ export const TECH_NODES: TechNode[] = [
     title: 'AI OCR & NER Engine',
     category: 'processing',
     description: 'Optical Character Recognition & Medical Named Entity Recognition.',
-    techs: ['EasyOCR / Tesseract', 'PyTorch LLM', 'Spacy Medical'],
+    techs: ['EasyOCR / Tesseract', 'MedGemma 1.5 Flash', 'Spacy Medical'],
   },
   {
     id: 'backend',
@@ -216,78 +144,30 @@ export const TECH_NODES: TechNode[] = [
   }
 ];
 
-export const SAMPLE_REPORTS_PRESETS = [
+export const TEAM_MEMBERS = [
   {
-    name: 'Jane Doe - CBC & Metabolic Panel',
-    patient: {
-      name: 'DOE, JANE M.',
-      age: 38,
-      gender: 'FEMALE',
-      sampleDate: '18-AUG-2026',
-      riskScore: 88,
-      riskLevel: 'LOW RISK' as const,
-      riskTitle: 'Optimal Health Profile',
-      riskDescription: '92% of evaluated markers are within normal range. Mild elevation detected in Neutrophils, requiring standard wellness monitoring.',
-      normalCount: 4,
-      varianceCount: 1,
-    },
-    params: INITIAL_LAB_PARAMETERS,
+    name: 'PBL Team Lead',
+    role: 'Lead Architect & ML Engineer',
+    avatar: 'TL',
+    github: 'https://github.com',
+    linkedin: 'https://linkedin.com',
+    contributions: ['Tesseract OCR Pipeline', 'MedGemma 1.5 Flash Prompting', 'FastAPI Backend']
   },
   {
-    name: 'Ramesh Kumar - Lipid & Diabetes Risk',
-    patient: {
-      name: 'KUMAR, RAMESH',
-      age: 52,
-      gender: 'MALE',
-      sampleDate: '24-AUG-2026',
-      riskScore: 64,
-      riskLevel: 'MODERATE RISK' as const,
-      riskTitle: 'Metabolic & Cholesterol Attention Needed',
-      riskDescription: 'Elevated Fasting Glucose (128 mg/dL) and Serum Triglycerides indicate early metabolic strain. Immediate dietary modification advised.',
-      normalCount: 3,
-      varianceCount: 3,
-    },
-    params: [
-      {
-        id: 'r1',
-        name: 'Fasting Plasma Glucose',
-        category: 'Metabolic Panel',
-        subText: 'Blood sugar after overnight fast',
-        observedValue: '128 mg/dL',
-        standardRange: '70 - 99 mg/dL',
-        status: 'HIGH' as const,
-        explanation: 'Elevated fasting glucose indicates insulin resistance. Dietary sugar reduction recommended.',
-      },
-      {
-        id: 'r2',
-        name: 'Serum Triglycerides',
-        category: 'Lipid Panel',
-        subText: 'Circulating blood fat concentration',
-        observedValue: '210 mg/dL',
-        standardRange: '< 150 mg/dL',
-        status: 'HIGH' as const,
-        explanation: 'High triglycerides increase cardiovascular stress. Limit refined carbs & fried foods.',
-      },
-      {
-        id: 'r3',
-        name: 'HDL Cholesterol',
-        category: 'Lipid Panel',
-        subText: 'Good protective cholesterol',
-        observedValue: '38 mg/dL',
-        standardRange: '> 40 mg/dL',
-        status: 'LOW' as const,
-        explanation: 'Mildly low good cholesterol. Increase omega-3 fats & aerobic walking.',
-      },
-      {
-        id: 'r4',
-        name: 'Hemoglobin (Hb)',
-        category: 'Complete Blood Count',
-        subText: 'Oxygen-carrying protein',
-        observedValue: '14.5 g/dL',
-        standardRange: '13.0 - 17.0 g/dL',
-        status: 'NORMAL' as const,
-        explanation: 'Normal red cell oxygen capacity.',
-      }
-    ],
+    name: 'Frontend Engineer',
+    role: 'UI/UX & React Specialist',
+    avatar: 'FE',
+    github: 'https://github.com',
+    linkedin: 'https://linkedin.com',
+    contributions: ['Liquid Glassmorphic UI', 'Web Speech API Integration', 'Multi-Page Camera Capture']
+  },
+  {
+    name: 'Clinical Data Researcher',
+    role: 'Biomarker Reference & Validation',
+    avatar: 'CD',
+    github: 'https://github.com',
+    linkedin: 'https://linkedin.com',
+    contributions: ['ICMR Lab Normalization', 'Diet Protocol Rules', 'Multi-Language Translation Verification']
   }
 ];
+

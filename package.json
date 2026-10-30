@@ -4,7 +4,11 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
+    "start": "node runner.js",
+    "dev:all": "node runner.js",
+    "py:all": "python -u run_all.py",
     "dev": "vite",
+    "server": "python server.py",
     "build": "vite build",
     "preview": "vite preview"
   },

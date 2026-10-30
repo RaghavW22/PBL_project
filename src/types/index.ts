@@ -27,6 +27,13 @@ export interface PatientProfile {
   riskDescription: string;
   normalCount: number;
   varianceCount: number;
+  summary?: string;
+  transcript?: string;
+  isAiCalculated?: boolean;
+  aiModel?: string;
+  inferenceMode?: string;
+  latencyMs?: number;
+  clinicalConfidence?: string;
 }
 
 export interface DietPlan {
@@ -55,3 +62,20 @@ export interface MultilingualTranslation {
   riskTitle: string;
   riskDesc: string;
 }
+
+export interface ExtractedReportData {
+  success: boolean;
+  errorType?: 'NO_TEXT_DETECTED' | 'NO_REPORT_DETECTED' | 'SERVER_ERROR';
+  message?: string;
+  fileName: string;
+  totalPages: number;
+  rawExtractedText: string;
+  patient?: PatientProfile;
+  parameters?: LabParameter[];
+  dietPlan?: DietPlan;
+  summary?: string;
+  transcript?: string;
+  confidenceScore?: string;
+}
+
+

@@ -26,12 +26,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Failsafe timer: ensures app never hangs on loading screen if Firebase is slow/offline
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1200);
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
+      clearTimeout(timer);
     });
 
-    return () => unsubscribe();
+    return () => {
+      clearTimeout(timer);
+      unsubscribe();
+    };
   }, []);
 
   const loginWithEmail = async (email: string, pass: string) => {

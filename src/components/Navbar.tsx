@@ -1,16 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   FileText, 
   Globe, 
   User, 
-  Github, 
   Menu, 
   X,
   ChevronDown,
   LogOut,
-  ShieldCheck
+  LayoutDashboard
 } from 'lucide-react';
 import { INDIAN_VOICE_LOCALES } from '../data/mockData';
+
+export const NAV_LINKS = [
+  { id: 'overview', label: 'Overview', href: '#overview', targetView: 'landing' },
+  { id: 'bento', label: 'Features Engine', href: '#bento', targetView: 'landing' },
+  { id: 'architecture', label: 'Architecture', href: '#architecture', targetView: 'landing' },
+  { id: 'uploader-section', label: 'Upload Report', href: '#uploader-section', targetView: 'portal' },
+  { id: 'dashboard', label: 'Live Dashboard', href: '#dashboard', targetView: 'portal' },
+] as const;
 
 interface NavbarProps {
   selectedLang: string;
@@ -19,6 +26,9 @@ interface NavbarProps {
   isLoggedIn: boolean;
   userEmail: string;
   onLogout: () => void;
+  currentView?: 'landing' | 'portal';
+  onNavigate?: (sectionId: string) => void;
+  activeTab?: string;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -28,17 +38,51 @@ export const Navbar: React.FC<NavbarProps> = ({
   isLoggedIn,
   userEmail,
   onLogout,
+  currentView = 'landing',
+  onNavigate,
+  activeTab = 'overview',
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
+  const [selectedTab, setSelectedTab] = useState<string>(activeTab);
+
+  // Sync internal selectedTab with activeTab prop
+  useEffect(() => {
+    if (activeTab) {
+      setSelectedTab(activeTab);
+    }
+  }, [activeTab]);
 
   const activeLocale = INDIAN_VOICE_LOCALES.find(l => l.code === selectedLang) || INDIAN_VOICE_LOCALES[0];
+
+  // Only show "Upload Report" when user is logged in
+  const visibleNavLinks = NAV_LINKS.filter((link) => {
+    if (link.id === 'uploader-section') {
+      return isLoggedIn;
+    }
+    return true;
+  });
+
+  const handleNavClick = (e: React.MouseEvent, linkId: string) => {
+    e.preventDefault();
+    setSelectedTab(linkId); // Immediately set active tab & underline clicked tab
+    if (onNavigate) {
+      onNavigate(linkId);
+    } else {
+      window.location.hash = `#${linkId}`;
+    }
+    setMobileMenuOpen(false);
+  };
 
   return (
     <header className="fixed top-4 left-0 right-0 z-50 px-4 max-w-7xl mx-auto">
       <div className="liquid-glass rounded-full px-5 py-3 flex items-center justify-between transition-all duration-300 border border-white/10 shadow-2xl backdrop-blur-xl">
         {/* Brand Logo & Title */}
-        <a href="#" className="flex items-center gap-3 group">
+        <a 
+          href="#overview" 
+          onClick={(e) => handleNavClick(e, 'overview')}
+          className="flex items-center gap-3 group"
+        >
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 p-[1px] flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-transform">
             <div className="w-full h-full bg-slate-950/80 rounded-full flex items-center justify-center backdrop-blur-sm">
               <FileText className="w-5 h-5 text-cyan-400" />
@@ -47,62 +91,85 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex flex-col">
             <span className="text-lg font-bold tracking-tight text-white flex items-center gap-1.5">
               Report<span className="text-cyan-400">Sarthi</span>
-              <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">CLINICAL AI</span>
+              {currentView === 'portal' ? (
+                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
+                  PATIENT PORTAL
+                </span>
+              ) : (
+                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20">
+                  CLINICAL AI
+                </span>
+              )}
             </span>
-            <span className="text-[10px] text-slate-400 font-mono tracking-wider">HEALTH DASHBOARD</span>
+            <span className="text-[10px] text-slate-400 font-mono tracking-wider">
+              {currentView === 'portal' ? 'AUTHENTICATED WORKSPACE' : 'HEALTH DASHBOARD'}
+            </span>
           </div>
         </a>
 
         {/* Desktop Quick Nav Links */}
         <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-slate-300">
-          <a href="#overview" className="hover:text-cyan-400 transition-colors">Overview</a>
-          <a href="#bento" className="hover:text-cyan-400 transition-colors">Features Engine</a>
-          <a href="#architecture" className="hover:text-cyan-400 transition-colors">Architecture</a>
-          {isLoggedIn && <a href="#uploader-section" className="hover:text-cyan-400 transition-colors">Upload Report</a>}
-          {isLoggedIn && <a href="#dashboard" className="hover:text-cyan-400 transition-colors">Live Dashboard</a>}
+          {visibleNavLinks.map((link) => {
+            const isActive = selectedTab === link.id;
+            return (
+              <a
+                key={link.id}
+                href={link.href}
+                onClick={(e) => handleNavClick(e, link.id)}
+                className={`transition-all py-1 relative ${
+                  isActive 
+                    ? 'text-cyan-400 font-semibold drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]' 
+                    : 'text-slate-300 hover:text-cyan-300'
+                }`}
+              >
+                <span>{link.label}</span>
+                {isActive && (
+                  <span className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.6)] animate-fadeIn" />
+                )}
+              </a>
+            );
+          })}
         </nav>
 
         {/* Right Action Group */}
         <div className="hidden sm:flex items-center gap-3">
-          {/* Indian Language Selector - Only visible when logged in */}
-          {isLoggedIn && (
-            <div className="relative">
-              <button
-                onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-                className="flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-full bg-slate-900/60 border border-white/10 text-slate-200 hover:border-cyan-500/40 transition-colors"
-              >
-                <Globe className="w-3.5 h-3.5 text-cyan-400" />
-                <span>{activeLocale.flag} {activeLocale.name}</span>
-                <ChevronDown className="w-3 h-3 text-slate-400" />
-              </button>
+          {/* Indian Language Selector */}
+          <div className="relative">
+            <button
+              onClick={() => setLangDropdownOpen(!langDropdownOpen)}
+              className="flex items-center gap-2 text-xs font-mono px-3 py-1.5 rounded-full bg-slate-900/60 border border-white/10 text-slate-200 hover:border-cyan-500/40 transition-colors"
+            >
+              <Globe className="w-3.5 h-3.5 text-cyan-400" />
+              <span>{activeLocale.flag} {activeLocale.name}</span>
+              <ChevronDown className="w-3 h-3 text-slate-400" />
+            </button>
 
-              {langDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 py-2 liquid-glass-active rounded-2xl border border-white/20 shadow-2xl z-50 backdrop-blur-2xl">
-                  <div className="px-3 py-1 text-[10px] font-mono uppercase text-slate-400 border-b border-white/10 mb-1">
-                    Select Speech & Summary Locale
-                  </div>
-                  {INDIAN_VOICE_LOCALES.map((locale) => (
-                    <button
-                      key={locale.code}
-                      onClick={() => {
-                        onSelectLang(locale.code);
-                        setLangDropdownOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between hover:bg-cyan-500/20 transition-colors ${
-                        selectedLang === locale.code ? 'text-cyan-300 font-semibold bg-cyan-500/10' : 'text-slate-300'
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span>{locale.flag}</span>
-                        <span>{locale.name}</span>
-                      </span>
-                      <span className="text-[10px] text-slate-400 font-mono">{locale.nativeName}</span>
-                    </button>
-                  ))}
+            {langDropdownOpen && (
+              <div className="absolute right-0 mt-2 w-56 py-2 liquid-glass-active rounded-2xl border border-white/20 shadow-2xl z-50 backdrop-blur-2xl">
+                <div className="px-3 py-1 text-[10px] font-mono uppercase text-slate-400 border-b border-white/10 mb-1">
+                  Select Speech & Summary Locale
                 </div>
-              )}
-            </div>
-          )}
+                {INDIAN_VOICE_LOCALES.map((locale) => (
+                  <button
+                    key={locale.code}
+                    onClick={() => {
+                      onSelectLang(locale.code);
+                      setLangDropdownOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-1.5 text-xs flex items-center justify-between hover:bg-cyan-500/20 transition-colors ${
+                      selectedLang === locale.code ? 'text-cyan-300 font-semibold bg-cyan-500/10' : 'text-slate-300'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span>{locale.flag}</span>
+                      <span>{locale.name}</span>
+                    </span>
+                    <span className="text-[10px] text-slate-400 font-mono">{locale.nativeName}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
           {/* Auth State Actions */}
           {isLoggedIn ? (
@@ -150,31 +217,46 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
         <div className="lg:hidden mt-2 liquid-glass-active rounded-3xl p-5 border border-white/20 shadow-2xl flex flex-col gap-4">
-          <nav className="flex flex-col gap-3 font-medium text-slate-200 text-sm">
-            <a href="#overview" onClick={() => setMobileMenuOpen(false)}>Overview</a>
-            <a href="#bento" onClick={() => setMobileMenuOpen(false)}>Features Engine</a>
-            <a href="#architecture" onClick={() => setMobileMenuOpen(false)}>Architecture</a>
-            {isLoggedIn && <a href="#uploader-section" onClick={() => setMobileMenuOpen(false)}>Upload Report</a>}
-            {isLoggedIn && <a href="#dashboard" onClick={() => setMobileMenuOpen(false)}>Live Dashboard</a>}
+          <nav className="flex flex-col gap-2 font-medium text-slate-200 text-sm">
+            {visibleNavLinks.map((link) => {
+              const isActive = selectedTab === link.id;
+              return (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  onClick={(e) => handleNavClick(e, link.id)}
+                  className={`py-2 px-3 rounded-xl flex items-center justify-between transition-colors ${
+                    isActive 
+                      ? 'bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/30' 
+                      : 'hover:bg-white/5 text-slate-200'
+                  }`}
+                >
+                  <span>{link.label}</span>
+                  {link.targetView === 'portal' && (
+                    <span className="text-[10px] font-mono uppercase px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      Portal
+                    </span>
+                  )}
+                </a>
+              );
+            })}
           </nav>
 
           <div className="pt-3 border-t border-white/10 flex flex-col gap-3">
-            {isLoggedIn && (
-              <div className="flex items-center justify-between text-xs text-slate-300 font-mono">
-                <span>Locale Accent:</span>
-                <select
-                  value={selectedLang}
-                  onChange={(e) => onSelectLang(e.target.value)}
-                  className="bg-slate-900 border border-white/20 rounded px-2 py-1 text-slate-200"
-                >
-                  {INDIAN_VOICE_LOCALES.map((loc) => (
-                    <option key={loc.code} value={loc.code}>
-                      {loc.flag} {loc.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
+            <div className="flex items-center justify-between text-xs text-slate-300 font-mono">
+              <span>Locale Accent:</span>
+              <select
+                value={selectedLang}
+                onChange={(e) => onSelectLang(e.target.value)}
+                className="bg-slate-900 border border-white/20 rounded px-2 py-1 text-slate-200"
+              >
+                {INDIAN_VOICE_LOCALES.map((loc) => (
+                  <option key={loc.code} value={loc.code}>
+                    {loc.flag} {loc.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
             {isLoggedIn ? (
               <button
